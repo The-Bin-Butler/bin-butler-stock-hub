@@ -106,6 +106,7 @@ export default function NewProduct() {
           default_order_quantity: data.default_order_quantity || null,
           notes: data.notes || null,
           current_stock: data.initial_stock || 0,
+          is_common: data.is_common || false,
         })
         .select()
         .single();
