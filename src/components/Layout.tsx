@@ -1,3 +1,4 @@
+
 import { ReactNode } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserRoles } from '@/hooks/useUserRoles';
@@ -18,7 +19,7 @@ interface LayoutProps {
   children: ReactNode;
 }
 
-export default function Layout({ children }: LayoutProps) {
+function Layout({ children }: LayoutProps) {
   const { user, signOut } = useAuth();
   const { roles, isOwner, isTeamLeader, isStaff } = useUserRoles();
 
@@ -80,3 +81,7 @@ export default function Layout({ children }: LayoutProps) {
     </div>
   );
 }
+
+// Export both default and named for compatibility
+export default Layout;
+export { Layout };
