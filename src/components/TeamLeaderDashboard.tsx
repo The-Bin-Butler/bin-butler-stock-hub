@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import AddStockModal from '@/components/AddStockModal';
 import { 
   AlertTriangle, 
   Package, 
@@ -53,6 +54,7 @@ export default function TeamLeaderDashboard() {
   const [recentMovements, setRecentMovements] = useState<StockMovement[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isAddStockModalOpen, setIsAddStockModalOpen] = useState(false);
 
   useEffect(() => {
     fetchDashboardData();
@@ -112,6 +114,10 @@ export default function TeamLeaderDashboard() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleAddStockSuccess = () => {
+    fetchDashboardData(); // Refresh the dashboard data
   };
 
   const getLowStockProducts = () => {
@@ -267,7 +273,12 @@ export default function TeamLeaderDashboard() {
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {canManageInventory && (
-              <Button variant="outline" size="lg" className="h-auto p-4 flex flex-col space-y-2">
+              <Button 
+                variant="outline" 
+                size="lg" 
+                className="h-auto p-4 flex flex-col space-y-2"
+                onClick={() => setIsAddStockModalOpen(true)}
+              >
                 <Plus className="h-6 w-6" />
                 <span>Add Stock</span>
               </Button>
@@ -377,6 +388,12 @@ export default function TeamLeaderDashboard() {
           </CardContent>
         </Card>
       </div>
+
+      <AddStockModal
+        isOpen={isAddStockModalOpen}
+        onClose={() => setIsAddStockModalOpen(false)}
+        onSuccess={handleAddStockSuccess}
+      />
     </div>
   );
 }
