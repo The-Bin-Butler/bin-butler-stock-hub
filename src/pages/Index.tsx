@@ -8,7 +8,13 @@ import { Loader2 } from 'lucide-react';
 
 const Index = () => {
   const { user, loading } = useAuth();
-  const { canManageInventory, isOwner, isLoading: rolesLoading } = useUserRoles();
+  const { canManageInventory, isOwner, isLoading: rolesLoading, roles } = useUserRoles();
+
+  console.log('Index page - user:', user?.id);
+  console.log('Index page - roles:', roles);
+  console.log('Index page - isOwner:', isOwner);
+  console.log('Index page - canManageInventory:', canManageInventory);
+  console.log('Index page - should show TeamLeaderDashboard:', (canManageInventory || isOwner));
 
   if (loading || rolesLoading) {
     return (
