@@ -33,7 +33,14 @@ const Index = () => {
 
   return (
     <Layout>
-      {(canManageInventory || isOwner) ? <TeamLeaderDashboard /> : <StaffDashboard />}
+      {(canManageInventory || isOwner) ? (
+        <div className="space-y-8">
+          <StaffDashboard />
+          <TeamLeaderDashboard />
+        </div>
+      ) : (
+        <StaffDashboard />
+      )}
     </Layout>
   );
 };
