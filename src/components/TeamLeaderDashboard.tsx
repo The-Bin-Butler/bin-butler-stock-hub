@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserRoles } from '@/hooks/useUserRoles';
@@ -47,6 +48,7 @@ interface Order {
 }
 
 export default function TeamLeaderDashboard() {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const { canManageInventory, isLoading: rolesLoading } = useUserRoles();
   const { toast } = useToast();
@@ -284,7 +286,12 @@ export default function TeamLeaderDashboard() {
               </Button>
             )}
             {canManageInventory && (
-              <Button variant="outline" size="lg" className="h-auto p-4 flex flex-col space-y-2">
+              <Button 
+                variant="outline" 
+                size="lg" 
+                className="h-auto p-4 flex flex-col space-y-2"
+                onClick={() => navigate("/new-product")}
+              >
                 <Package className="h-6 w-6" />
                 <span>New Product</span>
               </Button>
