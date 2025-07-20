@@ -1835,6 +1835,21 @@ export type Database = {
           },
         ]
       }
+      view_user_roles: {
+        Row: {
+          role: Database["public"]["Enums"]["app_role"] | null
+          user_id: string | null
+        }
+        Insert: {
+          role?: Database["public"]["Enums"]["app_role"] | null
+          user_id?: string | null
+        }
+        Update: {
+          role?: Database["public"]["Enums"]["app_role"] | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       _postgis_deprecate: {
@@ -3662,7 +3677,14 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "staff" | "team_leader"
+      app_role:
+        | "staff"
+        | "team_leader"
+        | "bin_cleaner"
+        | "bin_team_leader"
+        | "admin_staff"
+        | "admin_leader"
+        | "owner"
       bin_type_enum: "plastic" | "steel"
       council_enum: "gold_coast" | "logan"
       customer_status_enum:
@@ -3852,7 +3874,15 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["staff", "team_leader"],
+      app_role: [
+        "staff",
+        "team_leader",
+        "bin_cleaner",
+        "bin_team_leader",
+        "admin_staff",
+        "admin_leader",
+        "owner",
+      ],
       bin_type_enum: ["plastic", "steel"],
       council_enum: ["gold_coast", "logan"],
       customer_status_enum: [
