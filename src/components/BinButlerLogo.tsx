@@ -6,7 +6,7 @@ export default function BinButlerLogo({ className = "h-16 w-auto" }: BinButlerLo
   return (
     <div className={`flex items-center ${className}`}>
       <img 
-        src="/lovable-uploads/d5074cf5-37ae-442a-85a3-f8c04d5f33d7.png" 
+        src="lovable-uploads/d5074cf5-37ae-442a-85a3-f8c04d5f33d7.png" 
         alt="The Bin Butler Logo" 
         className="h-12 w-auto"
         onError={(e) => {

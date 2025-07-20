@@ -8,7 +8,7 @@ import { Loader2 } from 'lucide-react';
 
 const Index = () => {
   const { user, loading } = useAuth();
-  const { canManageInventory, isLoading: rolesLoading } = useUserRoles();
+  const { canManageInventory, isOwner, isLoading: rolesLoading } = useUserRoles();
 
   if (loading || rolesLoading) {
     return (
@@ -27,7 +27,7 @@ const Index = () => {
 
   return (
     <Layout>
-      {canManageInventory ? <TeamLeaderDashboard /> : <StaffDashboard />}
+      {(canManageInventory || isOwner) ? <TeamLeaderDashboard /> : <StaffDashboard />}
     </Layout>
   );
 };

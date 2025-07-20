@@ -97,8 +97,14 @@ export default function StaffDashboard() {
   };
 
   const handleQuickUse = async (productName: string) => {
+    console.log('Quick use clicked:', productName);
+    console.log('Available products:', products);
     const product = products.find(p => p.name === productName);
-    if (!product) return;
+    console.log('Found product:', product);
+    if (!product) {
+      console.log('Product not found for quick use');
+      return;
+    }
 
     await logUsage(product.id, 1, `Quick use: ${productName}`);
   };
