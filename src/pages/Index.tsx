@@ -1,14 +1,16 @@
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { useUserRoles } from '@/hooks/useUserRoles';
 import Layout from '@/components/Layout';
 import StaffDashboard from '@/components/StaffDashboard';
 import TeamLeaderDashboard from '@/components/TeamLeaderDashboard';
 import { Loader2 } from 'lucide-react';
 
 const Index = () => {
-  const { user, userRole, loading } = useAuth();
+  const { user, loading } = useAuth();
+  const { canManageInventory, isLoading: rolesLoading } = useUserRoles();
 
-  if (loading) {
+  if (loading || rolesLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-subtle">
         <div className="flex items-center space-x-2">
@@ -25,7 +27,7 @@ const Index = () => {
 
   return (
     <Layout>
-      {userRole === 'team_leader' ? <TeamLeaderDashboard /> : <StaffDashboard />}
+      {canManageInventory ? <TeamLeaderDashboard /> : <StaffDashboard />}
     </Layout>
   );
 };

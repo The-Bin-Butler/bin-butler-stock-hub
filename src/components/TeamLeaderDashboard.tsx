@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useUserRoles } from '@/hooks/useUserRoles';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -46,6 +47,7 @@ interface Order {
 
 export default function TeamLeaderDashboard() {
   const { user } = useAuth();
+  const { canManageInventory, isLoading: rolesLoading } = useUserRoles();
   const { toast } = useToast();
   const [products, setProducts] = useState<Product[]>([]);
   const [recentMovements, setRecentMovements] = useState<StockMovement[]>([]);
@@ -125,12 +127,23 @@ export default function TeamLeaderDashboard() {
     return Math.abs(usageMovements.reduce((total, movement) => total + movement.quantity, 0));
   };
 
-  if (loading) {
+  if (loading || rolesLoading) {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="flex items-center space-x-2">
           <Loader2 className="h-6 w-6 animate-spin text-primary" />
           <span className="text-muted-foreground">Loading dashboard...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (!canManageInventory) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-destructive mb-2">Access Denied</h2>
+          <p className="text-muted-foreground">You don't have permission to access this dashboard.</p>
         </div>
       </div>
     );
@@ -253,22 +266,30 @@ export default function TeamLeaderDashboard() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Button variant="outline" size="lg" className="h-auto p-4 flex flex-col space-y-2">
-              <Plus className="h-6 w-6" />
-              <span>Add Stock</span>
-            </Button>
-            <Button variant="outline" size="lg" className="h-auto p-4 flex flex-col space-y-2">
-              <Package className="h-6 w-6" />
-              <span>New Product</span>
-            </Button>
-            <Button variant="outline" size="lg" className="h-auto p-4 flex flex-col space-y-2">
-              <ClipboardList className="h-6 w-6" />
-              <span>Create Order</span>
-            </Button>
-            <Button variant="outline" size="lg" className="h-auto p-4 flex flex-col space-y-2">
-              <Users className="h-6 w-6" />
-              <span>Manage Staff</span>
-            </Button>
+            {canManageInventory && (
+              <Button variant="outline" size="lg" className="h-auto p-4 flex flex-col space-y-2">
+                <Plus className="h-6 w-6" />
+                <span>Add Stock</span>
+              </Button>
+            )}
+            {canManageInventory && (
+              <Button variant="outline" size="lg" className="h-auto p-4 flex flex-col space-y-2">
+                <Package className="h-6 w-6" />
+                <span>New Product</span>
+              </Button>
+            )}
+            {canManageInventory && (
+              <Button variant="outline" size="lg" className="h-auto p-4 flex flex-col space-y-2">
+                <ClipboardList className="h-6 w-6" />
+                <span>Create Order</span>
+              </Button>
+            )}
+            {canManageInventory && (
+              <Button variant="outline" size="lg" className="h-auto p-4 flex flex-col space-y-2">
+                <Users className="h-6 w-6" />
+                <span>Manage Staff</span>
+              </Button>
+            )}
           </div>
         </CardContent>
       </Card>

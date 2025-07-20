@@ -1,5 +1,6 @@
 import { ReactNode } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { useUserRoles } from '@/hooks/useUserRoles';
 import BinButlerLogo from '@/components/BinButlerLogo';
 import { Button } from '@/components/ui/button';
 import { LogOut, User } from 'lucide-react';
@@ -18,7 +19,8 @@ interface LayoutProps {
 }
 
 export default function Layout({ children }: LayoutProps) {
-  const { user, userRole, signOut } = useAuth();
+  const { user, signOut } = useAuth();
+  const { roles, isOwner, isTeamLeader, isStaff } = useUserRoles();
 
   const handleSignOut = async () => {
     await signOut();
@@ -32,12 +34,12 @@ export default function Layout({ children }: LayoutProps) {
           <BinButlerLogo className="h-12 w-auto" />
 
           <div className="flex items-center space-x-4">
-            {userRole && (
+            {roles.length > 0 && (
               <Badge 
-                variant={userRole === 'team_leader' ? 'default' : 'secondary'}
+                variant={isOwner ? 'default' : isTeamLeader ? 'secondary' : 'outline'}
                 className="capitalize"
               >
-                {userRole.replace('_', ' ')}
+                {isOwner ? 'Owner' : isTeamLeader ? 'Team Leader' : 'Staff'}
               </Badge>
             )}
             
@@ -53,9 +55,9 @@ export default function Layout({ children }: LayoutProps) {
                     <p className="text-sm font-medium leading-none">
                       {user?.email}
                     </p>
-                    {userRole && (
-                      <p className="text-xs leading-none text-muted-foreground capitalize">
-                        {userRole.replace('_', ' ')}
+                    {roles.length > 0 && (
+                      <p className="text-xs leading-none text-muted-foreground">
+                        {isOwner ? 'Owner' : isTeamLeader ? 'Team Leader' : 'Staff'}
                       </p>
                     )}
                   </div>
