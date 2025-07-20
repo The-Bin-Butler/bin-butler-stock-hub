@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2 } from 'lucide-react';
-import binButlerLogo from '@/assets/bin-butler-logo.png';
+import BinButlerLogo from '@/components/BinButlerLogo';
 
 export default function Auth() {
   const { user, signIn, signUp, loading } = useAuth();
@@ -78,11 +78,7 @@ export default function Auth() {
       <Card className="w-full max-w-md shadow-elegant animate-scale-in">
         <CardHeader className="text-center space-y-4">
           <div className="flex justify-center">
-            <img 
-              src={binButlerLogo} 
-              alt="The Bin Butler Logo" 
-              className="h-16 w-auto"
-            />
+            <BinButlerLogo className="h-20 w-auto" />
           </div>
           <div>
             <CardTitle className="text-2xl font-semibold text-foreground">

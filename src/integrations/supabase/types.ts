@@ -926,6 +926,7 @@ export type Database = {
         Row: {
           category: string | null
           created_at: string | null
+          current_stock: number | null
           default_order_quantity: number | null
           id: string
           name: string
@@ -933,10 +934,12 @@ export type Database = {
           reorder_threshold: number | null
           sku: string | null
           stock_status: Database["public"]["Enums"]["stock_status"]
+          updated_at: string | null
         }
         Insert: {
           category?: string | null
           created_at?: string | null
+          current_stock?: number | null
           default_order_quantity?: number | null
           id?: string
           name: string
@@ -944,10 +947,12 @@ export type Database = {
           reorder_threshold?: number | null
           sku?: string | null
           stock_status?: Database["public"]["Enums"]["stock_status"]
+          updated_at?: string | null
         }
         Update: {
           category?: string | null
           created_at?: string | null
+          current_stock?: number | null
           default_order_quantity?: number | null
           id?: string
           name?: string
@@ -955,6 +960,7 @@ export type Database = {
           reorder_threshold?: number | null
           sku?: string | null
           stock_status?: Database["public"]["Enums"]["stock_status"]
+          updated_at?: string | null
         }
         Relationships: []
       }

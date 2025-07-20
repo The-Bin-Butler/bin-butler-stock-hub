@@ -1,7 +1,8 @@
 import { ReactNode } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import BinButlerLogo from '@/components/BinButlerLogo';
 import { Button } from '@/components/ui/button';
-import { LogOut, User, Package } from 'lucide-react';
+import { LogOut, User } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,17 +29,7 @@ export default function Layout({ children }: LayoutProps) {
       {/* Header */}
       <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
         <div className="container flex h-16 items-center justify-between px-4">
-          <div className="flex items-center space-x-3">
-            <div className="flex items-center justify-center w-10 h-10 bg-gradient-primary rounded-lg shadow-soft">
-              <Package className="h-6 w-6 text-primary-foreground" />
-            </div>
-            <div>
-              <h1 className="text-xl font-semibold text-foreground">
-                The Bin Butler
-              </h1>
-              <p className="text-sm text-muted-foreground">Stock Hub</p>
-            </div>
-          </div>
+          <BinButlerLogo className="h-12 w-auto" />
 
           <div className="flex items-center space-x-4">
             {userRole && (
