@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 
-type UserRole = 'owner' | 'team_leader' | 'staff';
+type UserRole = 'owner' | 'team_leader' | 'staff' | 'bin_cleaner' | 'bin_team_leader' | 'admin_staff' | 'admin_leader';
 
 export function useUserRoles() {
   const [roles, setRoles] = useState<UserRole[]>([]);
@@ -59,6 +59,9 @@ export function useUserRoles() {
   
   // Check if user can view admin features (owners only)
   const canViewAdminFeatures = isOwner;
+
+  console.log('Current user roles:', roles);
+  console.log('isOwner:', isOwner, 'isTeamLeader:', isTeamLeader, 'canManageInventory:', canManageInventory);
 
   return {
     roles,
