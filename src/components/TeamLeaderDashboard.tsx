@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -15,7 +16,8 @@ import {
   Users, 
   ClipboardList,
   Plus,
-  Loader2 
+  Loader2,
+  RefreshCw
 } from 'lucide-react';
 
 interface Product {
@@ -57,14 +59,15 @@ export default function TeamLeaderDashboard() {
   const [recentMovements, setRecentMovements] = useState<StockMovement[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [isAddStockModalOpen, setIsAddStockModalOpen] = useState(false);
 
-  useEffect(() => {
-    fetchDashboardData();
-  }, []);
-
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = useCallback(async (showRefreshing = false) => {
     try {
+      if (showRefreshing) {
+        setRefreshing(true);
+      }
+
       // Fetch products
       const { data: productsData, error: productsError } = await supabase
         .from('products')
@@ -116,11 +119,99 @@ export default function TeamLeaderDashboard() {
       });
     } finally {
       setLoading(false);
+      if (showRefreshing) {
+        setRefreshing(false);
+      }
     }
-  };
+  }, [toast]);
+
+  // Initial data load
+  useEffect(() => {
+    fetchDashboardData();
+  }, [fetchDashboardData]);
+
+  // Real-time subscriptions
+  useEffect(() => {
+    if (!canManageInventory) return;
+
+    console.log('Setting up real-time subscriptions...');
+
+    // Subscribe to stock movements changes
+    const stockMovementsChannel = supabase
+      .channel('stock_movements_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'stock_movements'
+        },
+        (payload) => {
+          console.log('Stock movement change detected:', payload);
+          fetchDashboardData();
+        }
+      )
+      .subscribe();
+
+    // Subscribe to products changes (stock updates)
+    const productsChannel = supabase
+      .channel('products_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'products'
+        },
+        (payload) => {
+          console.log('Product change detected:', payload);
+          fetchDashboardData();
+        }
+      )
+      .subscribe();
+
+    // Subscribe to orders changes
+    const ordersChannel = supabase
+      .channel('orders_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'orders'
+        },
+        (payload) => {
+          console.log('Order change detected:', payload);
+          fetchDashboardData();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(stockMovementsChannel);
+      supabase.removeChannel(productsChannel);
+      supabase.removeChannel(ordersChannel);
+    };
+  }, [canManageInventory, fetchDashboardData]);
+
+  // Periodic refresh (every 60 seconds)
+  useEffect(() => {
+    if (!canManageInventory) return;
+
+    const interval = setInterval(() => {
+      console.log('Periodic refresh triggered');
+      fetchDashboardData();
+    }, 60000); // 60 seconds
+
+    return () => clearInterval(interval);
+  }, [canManageInventory, fetchDashboardData]);
 
   const handleAddStockSuccess = () => {
-    fetchDashboardData(); // Refresh the dashboard data
+    fetchDashboardData(true); // Show refreshing indicator
+  };
+
+  const handleManualRefresh = () => {
+    fetchDashboardData(true); // Show refreshing indicator
   };
 
   const getLowStockProducts = () => {
@@ -164,11 +255,23 @@ export default function TeamLeaderDashboard() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h2 className="text-3xl font-bold text-foreground">Team Leader Dashboard</h2>
-        <p className="text-muted-foreground mt-2">
-          Comprehensive overview of stock levels, orders, and team activity
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-3xl font-bold text-foreground">Team Leader Dashboard</h2>
+          <p className="text-muted-foreground mt-2">
+            Comprehensive overview of stock levels, orders, and team activity
+          </p>
+        </div>
+        <Button
+          onClick={handleManualRefresh}
+          disabled={refreshing}
+          variant="outline"
+          size="sm"
+          className="flex items-center space-x-2"
+        >
+          <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+          <span>{refreshing ? 'Refreshing...' : 'Refresh'}</span>
+        </Button>
       </div>
 
       {/* Key Metrics */}
@@ -311,7 +414,10 @@ export default function TeamLeaderDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="shadow-soft">
           <CardHeader>
-            <CardTitle>Recent Stock Movements</CardTitle>
+            <CardTitle className="flex items-center justify-between">
+              <span>Recent Stock Movements</span>
+              {refreshing && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
+            </CardTitle>
             <CardDescription>
               Latest stock activity across all products
             </CardDescription>
@@ -349,7 +455,10 @@ export default function TeamLeaderDashboard() {
 
         <Card className="shadow-soft">
           <CardHeader>
-            <CardTitle>Recent Orders</CardTitle>
+            <CardTitle className="flex items-center justify-between">
+              <span>Recent Orders</span>
+              {refreshing && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
+            </CardTitle>
             <CardDescription>
               Latest order status and information
             </CardDescription>
