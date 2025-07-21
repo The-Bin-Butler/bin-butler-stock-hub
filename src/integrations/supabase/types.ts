@@ -929,6 +929,7 @@ export type Database = {
           current_stock: number | null
           default_order_quantity: number | null
           id: string
+          is_common: boolean | null
           name: string
           notes: string | null
           reorder_threshold: number | null
@@ -942,6 +943,7 @@ export type Database = {
           current_stock?: number | null
           default_order_quantity?: number | null
           id?: string
+          is_common?: boolean | null
           name: string
           notes?: string | null
           reorder_threshold?: number | null
@@ -955,6 +957,7 @@ export type Database = {
           current_stock?: number | null
           default_order_quantity?: number | null
           id?: string
+          is_common?: boolean | null
           name?: string
           notes?: string | null
           reorder_threshold?: number | null
@@ -1517,6 +1520,7 @@ export type Database = {
           notes: string | null
           product_id: string
           quantity: number
+          unit_cost: number | null
           user_id: string | null
         }
         Insert: {
@@ -1526,6 +1530,7 @@ export type Database = {
           notes?: string | null
           product_id: string
           quantity: number
+          unit_cost?: number | null
           user_id?: string | null
         }
         Update: {
@@ -1535,6 +1540,7 @@ export type Database = {
           notes?: string | null
           product_id?: string
           quantity?: number
+          unit_cost?: number | null
           user_id?: string | null
         }
         Relationships: [
