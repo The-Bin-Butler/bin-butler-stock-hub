@@ -27,6 +27,7 @@ interface Product {
   id: string;
   name: string;
   current_stock: number;
+  unit_type: string | null;
 }
 
 interface AddStockModalProps {
@@ -55,8 +56,8 @@ export default function AddStockModal({ isOpen, onClose, onSuccess }: AddStockMo
     try {
       const { data, error } = await supabase
         .from('products')
-        .select('id, name, current_stock')
-        .order('name');
+        .select('id, name, current_stock, unit_type')
+        .order('name') as any;
 
       if (error) throw error;
       setProducts(data || []);
@@ -151,7 +152,7 @@ export default function AddStockModal({ isOpen, onClose, onSuccess }: AddStockMo
                 <SelectContent>
                   {products.map((product) => (
                     <SelectItem key={product.id} value={product.id}>
-                      {product.name} (Current: {product.current_stock})
+                      {product.name} (Current: {product.current_stock} {product.unit_type || 'items'})
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -160,18 +161,25 @@ export default function AddStockModal({ isOpen, onClose, onSuccess }: AddStockMo
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="quantity">Quantity to Add</Label>
+            <Label htmlFor="quantity">
+              Quantity to Add
+              {selectedProduct?.unit_type && (
+                <span className="text-muted-foreground ml-1">
+                  ({selectedProduct.unit_type})
+                </span>
+              )}
+            </Label>
             <Input
               id="quantity"
               type="number"
               min="1"
               value={quantity}
               onChange={(e) => setQuantity(e.target.value)}
-              placeholder="Enter quantity"
+              placeholder={`Enter quantity${selectedProduct?.unit_type ? ` (${selectedProduct.unit_type})` : ''}`}
             />
             {selectedProduct && quantity && parseInt(quantity) > 0 && (
               <p className="text-sm text-muted-foreground">
-                New total: {selectedProduct.current_stock + parseInt(quantity)}
+                New total: {selectedProduct.current_stock + parseInt(quantity)} {selectedProduct.unit_type || 'items'}
               </p>
             )}
           </div>

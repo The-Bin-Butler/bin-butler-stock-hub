@@ -24,6 +24,7 @@ interface Product {
   current_stock: number;
   reorder_threshold: number;
   category: string;
+  unit_type: string | null;
 }
 
 interface StockMovement {
@@ -67,8 +68,8 @@ export default function TeamLeaderDashboard() {
       // Fetch products
       const { data: productsData, error: productsError } = await supabase
         .from('products')
-        .select('id, name, current_stock, reorder_threshold, category')
-        .order('name');
+        .select('id, name, current_stock, reorder_threshold, category, unit_type')
+        .order('name') as any;
 
       if (productsError) throw productsError;
 
@@ -251,7 +252,7 @@ export default function TeamLeaderDashboard() {
                   </div>
                   <div className="text-right">
                     <Badge variant="destructive">
-                      {product.current_stock} left
+                      {product.current_stock} {product.unit_type || 'items'} left
                     </Badge>
                     <p className="text-xs text-muted-foreground mt-1">
                       Reorder at: {product.reorder_threshold}
