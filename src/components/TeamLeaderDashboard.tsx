@@ -302,12 +302,6 @@ export default function TeamLeaderDashboard() {
                 <span>Create Order</span>
               </Button>
             )}
-            {canManageInventory && (
-              <Button variant="outline" size="lg" className="h-auto p-4 flex flex-col space-y-2">
-                <Users className="h-6 w-6" />
-                <span>Manage Staff</span>
-              </Button>
-            )}
           </div>
         </CardContent>
       </Card>
