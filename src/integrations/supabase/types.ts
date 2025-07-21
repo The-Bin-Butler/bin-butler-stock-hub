@@ -935,6 +935,7 @@ export type Database = {
           reorder_threshold: number | null
           sku: string | null
           stock_status: Database["public"]["Enums"]["stock_status"]
+          unit_type: Database["public"]["Enums"]["unit_type_enum"] | null
           updated_at: string | null
         }
         Insert: {
@@ -949,6 +950,7 @@ export type Database = {
           reorder_threshold?: number | null
           sku?: string | null
           stock_status?: Database["public"]["Enums"]["stock_status"]
+          unit_type?: Database["public"]["Enums"]["unit_type_enum"] | null
           updated_at?: string | null
         }
         Update: {
@@ -963,6 +965,7 @@ export type Database = {
           reorder_threshold?: number | null
           sku?: string | null
           stock_status?: Database["public"]["Enums"]["stock_status"]
+          unit_type?: Database["public"]["Enums"]["unit_type_enum"] | null
           updated_at?: string | null
         }
         Relationships: []
@@ -1549,13 +1552,6 @@ export type Database = {
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "products"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "stock_movements_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "employees"
             referencedColumns: ["id"]
           },
         ]
@@ -3720,6 +3716,15 @@ export type Database = {
         | "early_afternoon"
         | "late_afternoon"
         | "anytime"
+      unit_type_enum:
+        | "pair"
+        | "litre"
+        | "roll"
+        | "bottle"
+        | "packet"
+        | "each"
+        | "box"
+        | "cloth"
       weekday_enum:
         | "monday"
         | "tuesday"
@@ -3921,6 +3926,16 @@ export const Constants = {
         "early_afternoon",
         "late_afternoon",
         "anytime",
+      ],
+      unit_type_enum: [
+        "pair",
+        "litre",
+        "roll",
+        "bottle",
+        "packet",
+        "each",
+        "box",
+        "cloth",
       ],
       weekday_enum: [
         "monday",
