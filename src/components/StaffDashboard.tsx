@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { Minus, Package2, Loader2 } from 'lucide-react';
 
@@ -38,8 +39,13 @@ export default function StaffDashboard() {
   const [selectedProduct, setSelectedProduct] = useState<string>('');
   const [quantity, setQuantity] = useState<number>(1);
   const [notes, setNotes] = useState<string>('');
-
-  // Common products for quick access - these will be fetched from the database
+  
+  // Quick use modal state
+  const [quickUseModal, setQuickUseModal] = useState<{ open: boolean; product: Product | null }>({
+    open: false,
+    product: null
+  });
+  const [quickUseQuantity, setQuickUseQuantity] = useState<number>(1);
   const [quickAccessProducts, setQuickAccessProducts] = useState<Product[]>([]);
 
   const fetchProducts = async () => {
@@ -111,10 +117,21 @@ export default function StaffDashboard() {
     }
   }, [user?.id]);
 
+  const handleQuickUse = (product: Product) => {
+    setQuickUseModal({ open: true, product });
+    setQuickUseQuantity(1);
+  };
 
-  const handleQuickUse = async (productId: string, productName: string) => {
-    console.log('Quick use clicked:', productName, productId);
-    await logUsage(productId, 1, `Quick use: ${productName}`);
+  const handleQuickUseSubmit = async () => {
+    if (!quickUseModal.product) return;
+    
+    await logUsage(
+      quickUseModal.product.id, 
+      quickUseQuantity, 
+      `Quick use: ${quickUseModal.product.name}`
+    );
+    
+    setQuickUseModal({ open: false, product: null });
   };
 
   const handleSubmitUsage = async (e: React.FormEvent) => {
@@ -203,7 +220,7 @@ export default function StaffDashboard() {
                 variant="outline"
                 size="lg"
                 className="h-auto p-4 flex flex-col space-y-2 hover:shadow-soft transition-all"
-                onClick={() => handleQuickUse(product.id, product.name)}
+                onClick={() => handleQuickUse(product)}
                 disabled={submitting}
               >
                 <span className="font-medium text-center text-sm">{product.name}</span>
@@ -332,6 +349,37 @@ export default function StaffDashboard() {
           )}
         </CardContent>
       </Card>
+
+      {/* Quick Use Modal */}
+      <Dialog open={quickUseModal.open} onOpenChange={(open) => setQuickUseModal({ open, product: null })}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Quick Use: {quickUseModal.product?.name}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="quick-quantity">Quantity Used</Label>
+              <Input
+                id="quick-quantity"
+                type="number"
+                min="1"
+                value={quickUseQuantity}
+                onChange={(e) => setQuickUseQuantity(parseInt(e.target.value) || 1)}
+                placeholder="Enter quantity used"
+              />
+            </div>
+            <div className="flex justify-end space-x-2">
+              <Button variant="outline" onClick={() => setQuickUseModal({ open: false, product: null })}>
+                Cancel
+              </Button>
+              <Button onClick={handleQuickUseSubmit} disabled={submitting}>
+                {submitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                Log Usage
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
