@@ -17,6 +17,7 @@ interface Product {
   name: string;
   current_stock: number;
   category: string;
+  unit_type: string | null;
 }
 
 interface StockMovement {
@@ -52,8 +53,8 @@ export default function StaffDashboard() {
     try {
       const { data, error } = await supabase
         .from('products')
-        .select('id, name, current_stock, category')
-        .order('name');
+        .select('id, name, current_stock, category, unit_type')
+        .order('name') as any;
 
       if (error) throw error;
       setProducts(data || []);
@@ -70,11 +71,11 @@ export default function StaffDashboard() {
   const fetchQuickAccessProducts = async () => {
     try {
       console.log('Fetching quick access products...');
-      const response = await (supabase as any)
+      const response = await supabase
         .from('products')
-        .select('id, name, current_stock, category')
+        .select('id, name, current_stock, category, unit_type')
         .eq('is_common', true)
-        .order('name');
+        .order('name') as any;
 
       console.log('Quick access products query result:', response);
       if (response.error) throw response.error;
@@ -263,7 +264,7 @@ export default function StaffDashboard() {
                 >
                   <option value="">Select a product...</option>
                   {products.map((product) => (
-                    <option key={product.id} value={product.id}>
+                  <option key={product.id} value={product.id}>
                       {product.name} ({product.current_stock} in stock)
                     </option>
                   ))}
@@ -271,7 +272,14 @@ export default function StaffDashboard() {
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="quantity">Quantity Used</Label>
+                <Label htmlFor="quantity">
+                  Quantity Used
+                  {selectedProduct && products.find(p => p.id === selectedProduct)?.unit_type && (
+                    <span className="text-muted-foreground ml-1">
+                      ({products.find(p => p.id === selectedProduct)?.unit_type})
+                    </span>
+                  )}
+                </Label>
                 <Input
                   id="quantity"
                   type="number"
@@ -358,14 +366,21 @@ export default function StaffDashboard() {
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="quick-quantity">Quantity Used</Label>
+              <Label htmlFor="quick-quantity">
+                Quantity Used
+                {quickUseModal.product?.unit_type && (
+                  <span className="text-muted-foreground ml-1">
+                    ({quickUseModal.product.unit_type})
+                  </span>
+                )}
+              </Label>
               <Input
                 id="quick-quantity"
                 type="number"
                 min="1"
                 value={quickUseQuantity}
                 onChange={(e) => setQuickUseQuantity(parseInt(e.target.value) || 1)}
-                placeholder="Enter quantity used"
+                placeholder={`Enter quantity used${quickUseModal.product?.unit_type ? ` (${quickUseModal.product.unit_type})` : ''}`}
               />
             </div>
             <div className="flex justify-end space-x-2">
