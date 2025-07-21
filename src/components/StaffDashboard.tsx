@@ -39,18 +39,8 @@ export default function StaffDashboard() {
   const [quantity, setQuantity] = useState<number>(1);
   const [notes, setNotes] = useState<string>('');
 
-  // Common products for quick access
-  const quickAccessProducts = [
-    'Disposable Gloves',
-    'Bin Bags (Large)',
-    'Microfiber Cloths',
-    'All-Purpose Cleaner'
-  ];
-
-  useEffect(() => {
-    fetchProducts();
-    fetchRecentMovements();
-  }, []);
+  // Common products for quick access - these will be fetched from the database
+  const [quickAccessProducts, setQuickAccessProducts] = useState<Product[]>([]);
 
   const fetchProducts = async () => {
     try {
@@ -68,6 +58,23 @@ export default function StaffDashboard() {
         description: "Failed to load products",
         variant: "destructive",
       });
+    }
+  };
+
+  const fetchQuickAccessProducts = async () => {
+    try {
+      console.log('Fetching quick access products...');
+      const response = await (supabase as any)
+        .from('products')
+        .select('id, name, current_stock, category')
+        .eq('is_common', true)
+        .order('name');
+
+      console.log('Quick access products query result:', response);
+      if (response.error) throw response.error;
+      setQuickAccessProducts(response.data || []);
+    } catch (error) {
+      console.error('Error fetching quick access products:', error);
     }
   };
 
@@ -96,17 +103,18 @@ export default function StaffDashboard() {
     }
   };
 
-  const handleQuickUse = async (productName: string) => {
-    console.log('Quick use clicked:', productName);
-    console.log('Available products:', products);
-    const product = products.find(p => p.name === productName);
-    console.log('Found product:', product);
-    if (!product) {
-      console.log('Product not found for quick use');
-      return;
+  useEffect(() => {
+    if (user?.id) {
+      fetchProducts();
+      fetchQuickAccessProducts();
+      fetchRecentMovements();
     }
+  }, [user?.id]);
 
-    await logUsage(product.id, 1, `Quick use: ${productName}`);
+
+  const handleQuickUse = async (productId: string, productName: string) => {
+    console.log('Quick use clicked:', productName, productId);
+    await logUsage(productId, 1, `Quick use: ${productName}`);
   };
 
   const handleSubmitUsage = async (e: React.FormEvent) => {
@@ -144,6 +152,7 @@ export default function StaffDashboard() {
 
       // Refresh data
       fetchProducts();
+      fetchQuickAccessProducts();
       fetchRecentMovements();
     } catch (error) {
       console.error('Error logging usage:', error);
@@ -188,26 +197,26 @@ export default function StaffDashboard() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            {quickAccessProducts.map((productName) => {
-              const product = products.find(p => p.name === productName);
-              return (
-                <Button
-                  key={productName}
-                  variant="outline"
-                  size="lg"
-                  className="h-auto p-4 flex flex-col space-y-2 hover:shadow-soft transition-all"
-                  onClick={() => handleQuickUse(productName)}
-                  disabled={submitting || !product}
-                >
-                  <span className="font-medium text-center text-sm">{productName}</span>
-                  {product && (
-                    <Badge variant="secondary" className="text-xs">
-                      {product.current_stock} in stock
-                    </Badge>
-                  )}
-                </Button>
-              );
-            })}
+            {quickAccessProducts.map((product) => (
+              <Button
+                key={product.id}
+                variant="outline"
+                size="lg"
+                className="h-auto p-4 flex flex-col space-y-2 hover:shadow-soft transition-all"
+                onClick={() => handleQuickUse(product.id, product.name)}
+                disabled={submitting}
+              >
+                <span className="font-medium text-center text-sm">{product.name}</span>
+                <Badge variant="secondary" className="text-xs">
+                  {product.current_stock} in stock
+                </Badge>
+              </Button>
+            ))}
+            {quickAccessProducts.length === 0 && (
+              <div className="col-span-full text-center py-4 text-muted-foreground">
+                No common items found. Mark products as "Quick Use" when adding them.
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
