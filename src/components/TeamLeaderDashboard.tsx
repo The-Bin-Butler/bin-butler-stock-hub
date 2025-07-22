@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import AddStockModal from '@/components/AddStockModal';
+import StockAdjustmentModal from '@/components/StockAdjustmentModal';
 import { 
   AlertTriangle, 
   Package, 
@@ -17,7 +18,8 @@ import {
   ClipboardList,
   Plus,
   Loader2,
-  RefreshCw
+  RefreshCw,
+  Settings
 } from 'lucide-react';
 
 interface Product {
@@ -61,6 +63,7 @@ export default function TeamLeaderDashboard() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [isAddStockModalOpen, setIsAddStockModalOpen] = useState(false);
+  const [isStockAdjustmentModalOpen, setIsStockAdjustmentModalOpen] = useState(false);
 
   const fetchDashboardData = useCallback(async (showRefreshing = false) => {
     try {
@@ -401,6 +404,17 @@ export default function TeamLeaderDashboard() {
               </Button>
             )}
             {canManageInventory && (
+              <Button 
+                variant="outline" 
+                size="lg" 
+                className="h-auto p-4 flex flex-col space-y-2"
+                onClick={() => setIsStockAdjustmentModalOpen(true)}
+              >
+                <Settings className="h-6 w-6" />
+                <span>Adjust Stock</span>
+              </Button>
+            )}
+            {canManageInventory && (
               <Button variant="outline" size="lg" className="h-auto p-4 flex flex-col space-y-2">
                 <ClipboardList className="h-6 w-6" />
                 <span>Create Order</span>
@@ -503,6 +517,12 @@ export default function TeamLeaderDashboard() {
       <AddStockModal
         isOpen={isAddStockModalOpen}
         onClose={() => setIsAddStockModalOpen(false)}
+        onSuccess={handleAddStockSuccess}
+      />
+      
+      <StockAdjustmentModal
+        isOpen={isStockAdjustmentModalOpen}
+        onClose={() => setIsStockAdjustmentModalOpen(false)}
         onSuccess={handleAddStockSuccess}
       />
     </div>
