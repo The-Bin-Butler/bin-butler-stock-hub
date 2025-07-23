@@ -24,6 +24,7 @@ interface HighLevelContact {
 interface AutomationRequest {
   product_id: string;
   product_name: string;
+  sku?: string;
   current_stock: number;
   threshold: number;
   supplier_id: string;
@@ -272,6 +273,7 @@ serve(async (req) => {
       const subject = `Stock Reorder Request - ${automationData.product_name}`;
       const message = emailTemplate
         .replace('{product_name}', automationData.product_name)
+        .replace('{sku}', automationData.sku || 'N/A')
         .replace('{current_stock}', automationData.current_stock.toString())
         .replace('{threshold}', automationData.threshold.toString())
         .replace('{supplier_name}', automationData.supplier_name)
@@ -284,6 +286,7 @@ serve(async (req) => {
       const smsTemplate = templates.default_sms_template || 'REORDER ALERT: {product_name} - Stock: {current_stock}/{threshold}';
       const message = smsTemplate
         .replace('{product_name}', automationData.product_name)
+        .replace('{sku}', automationData.sku || 'N/A')
         .replace('{current_stock}', automationData.current_stock.toString())
         .replace('{threshold}', automationData.threshold.toString())
         .replace('{supplier_name}', automationData.supplier_name)
