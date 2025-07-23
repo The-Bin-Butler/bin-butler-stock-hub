@@ -137,6 +137,33 @@ export type Database = {
         }
         Relationships: []
       }
+      automation_settings: {
+        Row: {
+          automation_type: string
+          created_at: string
+          enabled: boolean
+          id: string
+          settings: Json | null
+          updated_at: string
+        }
+        Insert: {
+          automation_type: string
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          settings?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          automation_type?: string
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          settings?: Json | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       bin_sizes: {
         Row: {
           bin_type: Database["public"]["Enums"]["bin_type_enum"]
@@ -706,6 +733,42 @@ export type Database = {
           street_number?: string
           suburb?: string
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      oauth_tokens: {
+        Row: {
+          access_token: string
+          created_at: string
+          expires_at: string | null
+          id: string
+          provider: string
+          refresh_token: string | null
+          scope: string | null
+          token_type: string | null
+          updated_at: string
+        }
+        Insert: {
+          access_token: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          provider?: string
+          refresh_token?: string | null
+          scope?: string | null
+          token_type?: string | null
+          updated_at?: string
+        }
+        Update: {
+          access_token?: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          provider?: string
+          refresh_token?: string | null
+          scope?: string | null
+          token_type?: string | null
+          updated_at?: string
         }
         Relationships: []
       }
