@@ -10,7 +10,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
-import { Minus, Package2, Loader2 } from 'lucide-react';
+import { Minus, Package2, Loader2, Bell } from 'lucide-react';
 
 interface Product {
   id: string;
@@ -30,11 +30,21 @@ interface StockMovement {
   };
 }
 
+interface ProductNotice {
+  id: string;
+  name: string;
+  purchase_method: string;
+  supplier_name: string;
+  current_stock: number;
+  reorder_threshold: number;
+}
+
 export default function StaffDashboard() {
   const { user } = useAuth();
   const { toast } = useToast();
   const [products, setProducts] = useState<Product[]>([]);
   const [recentMovements, setRecentMovements] = useState<StockMovement[]>([]);
+  const [productNotices, setProductNotices] = useState<ProductNotice[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<string>('');
@@ -85,6 +95,40 @@ export default function StaffDashboard() {
     }
   };
 
+  const fetchProductNotices = async () => {
+    try {
+      const { data: noticesData, error: noticesError } = await supabase
+        .from('products')
+        .select(`
+          id,
+          name,
+          current_stock,
+          reorder_threshold,
+          product_suppliers!inner (
+            purchase_method,
+            suppliers (supplier_name)
+          )
+        `)
+        .in('product_suppliers.purchase_method', ['in_store', 'online']);
+
+      if (noticesError) throw noticesError;
+
+      // Transform the notices data
+      const transformedNotices = noticesData?.map(product => ({
+        id: product.id,
+        name: product.name,
+        current_stock: product.current_stock,
+        reorder_threshold: product.reorder_threshold,
+        purchase_method: product.product_suppliers[0]?.purchase_method || '',
+        supplier_name: product.product_suppliers[0]?.suppliers?.supplier_name || 'Unknown'
+      })) || [];
+
+      setProductNotices(transformedNotices);
+    } catch (error) {
+      console.error('Error fetching product notices:', error);
+    }
+  };
+
   const fetchRecentMovements = async () => {
     try {
       const { data, error } = await supabase
@@ -115,6 +159,7 @@ export default function StaffDashboard() {
       fetchProducts();
       fetchQuickAccessProducts();
       fetchRecentMovements();
+      fetchProductNotices();
     }
   }, [user?.id]);
 
@@ -201,6 +246,50 @@ export default function StaffDashboard() {
         <h2 className="text-3xl font-bold text-foreground">Staff Dashboard</h2>
         <p className="text-muted-foreground mt-2">Log your stock usage quickly and easily</p>
       </div>
+
+      {/* Important Notices */}
+      <Card className="shadow-soft">
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2">
+            <Bell className="h-5 w-5 text-primary" />
+            <span>Important Notices</span>
+          </CardTitle>
+          <CardDescription>
+            Items requiring attention for restocking
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {productNotices.length === 0 ? (
+            <div className="text-center py-4 text-muted-foreground">
+              <Bell className="h-8 w-8 mx-auto mb-2 opacity-50" />
+              <p>No important notices at this time.</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {productNotices.map((product) => (
+                <div key={product.id} className="flex items-center justify-between p-3 bg-warning/5 rounded-lg border border-warning/20">
+                  <div>
+                    <p className="font-medium">{product.name}</p>
+                    <p className="text-sm text-muted-foreground">
+                      Supplier: {product.supplier_name} • Purchase method: {product.purchase_method}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <Badge variant={product.current_stock <= product.reorder_threshold ? "destructive" : "outline"}>
+                      {product.current_stock} items left
+                    </Badge>
+                    {product.current_stock <= product.reorder_threshold && (
+                      <p className="text-xs text-destructive mt-1 font-medium">
+                        Needs manual ordering!
+                      </p>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Quick Access Buttons */}
       <Card className="shadow-soft">
