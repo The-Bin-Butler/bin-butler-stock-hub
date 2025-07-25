@@ -169,6 +169,7 @@ export default function StockAdjustmentModal({ isOpen, onClose, onSuccess }: Sto
               value={newStockLevel}
               onChange={(e) => setNewStockLevel(e.target.value)}
               placeholder="Enter actual stock count"
+              onFocus={(e) => e.target.select()}
               required
             />
           </div>
