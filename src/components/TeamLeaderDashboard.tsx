@@ -52,6 +52,15 @@ interface Order {
   } | null;
 }
 
+interface ProductNotice {
+  id: string;
+  name: string;
+  purchase_method: string;
+  supplier_name: string;
+  current_stock: number;
+  reorder_threshold: number;
+}
+
 export default function TeamLeaderDashboard() {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -60,6 +69,7 @@ export default function TeamLeaderDashboard() {
   const [products, setProducts] = useState<Product[]>([]);
   const [recentMovements, setRecentMovements] = useState<StockMovement[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
+  const [productNotices, setProductNotices] = useState<ProductNotice[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [isAddStockModalOpen, setIsAddStockModalOpen] = useState(false);
@@ -110,9 +120,37 @@ export default function TeamLeaderDashboard() {
 
       if (ordersError) throw ordersError;
 
+      // Fetch products with in_store or online purchase methods
+      const { data: noticesData, error: noticesError } = await supabase
+        .from('products')
+        .select(`
+          id,
+          name,
+          current_stock,
+          reorder_threshold,
+          product_suppliers!inner (
+            purchase_method,
+            suppliers (supplier_name)
+          )
+        `)
+        .in('product_suppliers.purchase_method', ['in_store', 'online']);
+
+      if (noticesError) throw noticesError;
+
+      // Transform the notices data
+      const transformedNotices = noticesData?.map(product => ({
+        id: product.id,
+        name: product.name,
+        current_stock: product.current_stock,
+        reorder_threshold: product.reorder_threshold,
+        purchase_method: product.product_suppliers[0]?.purchase_method || '',
+        supplier_name: product.product_suppliers[0]?.suppliers?.supplier_name || 'Unknown'
+      })) || [];
+
       setProducts(productsData || []);
       setRecentMovements(movementsData || []);
       setOrders(ordersData || []);
+      setProductNotices(transformedNotices);
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
       toast({
@@ -363,6 +401,45 @@ export default function TeamLeaderDashboard() {
                     <p className="text-xs text-muted-foreground mt-1">
                       Reorder at: {product.reorder_threshold}
                     </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Important Notices */}
+      {productNotices.length > 0 && (
+        <Card className="shadow-soft border-warning">
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2 text-warning">
+              <AlertTriangle className="h-5 w-5" />
+              <span>Important Notices</span>
+            </CardTitle>
+            <CardDescription>
+              Products requiring manual ordering (in-store or online purchase)
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-3">
+              {productNotices.map((product) => (
+                <div key={product.id} className="flex items-center justify-between p-3 bg-warning/5 rounded-lg border border-warning/20">
+                  <div>
+                    <p className="font-medium">{product.name}</p>
+                    <p className="text-sm text-muted-foreground">
+                      Supplier: {product.supplier_name} • Purchase method: {product.purchase_method}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <Badge variant={product.current_stock <= product.reorder_threshold ? "destructive" : "outline"}>
+                      {product.current_stock} items left
+                    </Badge>
+                    {product.current_stock <= product.reorder_threshold && (
+                      <p className="text-xs text-destructive mt-1 font-medium">
+                        Needs manual ordering!
+                      </p>
+                    )}
                   </div>
                 </div>
               ))}
