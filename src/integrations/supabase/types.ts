@@ -14,6 +14,54 @@ export type Database = {
   }
   public: {
     Tables: {
+      address_data_requests: {
+        Row: {
+          assigned_to: string | null
+          completed_at: string | null
+          customer_id: string | null
+          id: string
+          notes: string | null
+          postcode: string
+          requested_at: string | null
+          state: string
+          status: string | null
+          street_name: string
+          street_number: string
+          suburb: string
+          unit_number: string | null
+        }
+        Insert: {
+          assigned_to?: string | null
+          completed_at?: string | null
+          customer_id?: string | null
+          id?: string
+          notes?: string | null
+          postcode: string
+          requested_at?: string | null
+          state?: string
+          status?: string | null
+          street_name: string
+          street_number: string
+          suburb: string
+          unit_number?: string | null
+        }
+        Update: {
+          assigned_to?: string | null
+          completed_at?: string | null
+          customer_id?: string | null
+          id?: string
+          notes?: string | null
+          postcode?: string
+          requested_at?: string | null
+          state?: string
+          status?: string | null
+          street_name?: string
+          street_number?: string
+          suburb?: string
+          unit_number?: string | null
+        }
+        Relationships: []
+      }
       addresses: {
         Row: {
           address_status: string | null
@@ -164,6 +212,123 @@ export type Database = {
         }
         Relationships: []
       }
+      bin_cleaning_bookings: {
+        Row: {
+          bin_count: number
+          bin_types: Database["public"]["Enums"]["bin_type"][]
+          booking_type: string
+          created_at: string
+          id: string
+          main_customer_id: string | null
+          main_service_id: string | null
+          payment_status: string | null
+          reminder_customer_id: string
+          scheduled_date: string | null
+          status: string
+          stripe_session_id: string | null
+          total_amount: number
+          updated_at: string
+        }
+        Insert: {
+          bin_count: number
+          bin_types: Database["public"]["Enums"]["bin_type"][]
+          booking_type: string
+          created_at?: string
+          id?: string
+          main_customer_id?: string | null
+          main_service_id?: string | null
+          payment_status?: string | null
+          reminder_customer_id: string
+          scheduled_date?: string | null
+          status?: string
+          stripe_session_id?: string | null
+          total_amount: number
+          updated_at?: string
+        }
+        Update: {
+          bin_count?: number
+          bin_types?: Database["public"]["Enums"]["bin_type"][]
+          booking_type?: string
+          created_at?: string
+          id?: string
+          main_customer_id?: string | null
+          main_service_id?: string | null
+          payment_status?: string | null
+          reminder_customer_id?: string
+          scheduled_date?: string | null
+          status?: string
+          stripe_session_id?: string | null
+          total_amount?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bin_cleaning_bookings_main_customer_id_fkey"
+            columns: ["main_customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bin_cleaning_bookings_main_service_id_fkey"
+            columns: ["main_service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bin_cleaning_bookings_reminder_customer_id_fkey"
+            columns: ["reminder_customer_id"]
+            isOneToOne: false
+            referencedRelation: "reminder_customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bin_collection_schedules: {
+        Row: {
+          active: boolean
+          bin_types: Database["public"]["Enums"]["bin_type"][]
+          collection_day: string
+          created_at: string
+          customer_id: string
+          id: string
+          updated_at: string
+          week_frequency: number
+          week_offset: number
+        }
+        Insert: {
+          active?: boolean
+          bin_types: Database["public"]["Enums"]["bin_type"][]
+          collection_day: string
+          created_at?: string
+          customer_id: string
+          id?: string
+          updated_at?: string
+          week_frequency?: number
+          week_offset?: number
+        }
+        Update: {
+          active?: boolean
+          bin_types?: Database["public"]["Enums"]["bin_type"][]
+          collection_day?: string
+          created_at?: string
+          customer_id?: string
+          id?: string
+          updated_at?: string
+          week_frequency?: number
+          week_offset?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bin_collection_schedules_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "reminder_customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bin_sizes: {
         Row: {
           bin_type: Database["public"]["Enums"]["bin_type_enum"]
@@ -187,6 +352,50 @@ export type Database = {
           name?: string
         }
         Relationships: []
+      }
+      checklist_items: {
+        Row: {
+          completed_at: string | null
+          completed_by: string | null
+          created_at: string
+          id: string
+          is_completed: boolean
+          item_text: string
+          order_index: number
+          task_id: string
+          updated_at: string
+        }
+        Insert: {
+          completed_at?: string | null
+          completed_by?: string | null
+          created_at?: string
+          id?: string
+          is_completed?: boolean
+          item_text: string
+          order_index?: number
+          task_id: string
+          updated_at?: string
+        }
+        Update: {
+          completed_at?: string | null
+          completed_by?: string | null
+          created_at?: string
+          id?: string
+          is_completed?: boolean
+          item_text?: string
+          order_index?: number
+          task_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "checklist_items_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       communication_preferences: {
         Row: {
@@ -267,6 +476,81 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      conversation_participants: {
+        Row: {
+          conversation_id: string
+          id: string
+          is_active: boolean
+          joined_at: string
+          last_read_at: string | null
+          user_id: string
+        }
+        Insert: {
+          conversation_id: string
+          id?: string
+          is_active?: boolean
+          joined_at?: string
+          last_read_at?: string | null
+          user_id: string
+        }
+        Update: {
+          conversation_id?: string
+          id?: string
+          is_active?: boolean
+          joined_at?: string
+          last_read_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversation_participants_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_conversation_participants_user_profiles"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      conversations: {
+        Row: {
+          created_at: string
+          created_by: string
+          description: string | null
+          id: string
+          is_group: boolean
+          last_message_at: string | null
+          name: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          description?: string | null
+          id?: string
+          is_group?: boolean
+          last_message_at?: string | null
+          name?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          id?: string
+          is_group?: boolean
+          last_message_at?: string | null
+          name?: string | null
+          updated_at?: string
+        }
+        Relationships: []
       }
       customer_complaints: {
         Row: {
@@ -687,54 +971,233 @@ export type Database = {
           clean_shift_days: number | null
           council: Database["public"]["Enums"]["council_enum"] | null
           created_at: string | null
+          general_waste_day: string | null
+          general_waste_week_frequency: number | null
+          general_waste_week_offset: number | null
+          green_waste_day: string | null
+          green_waste_week_frequency: number | null
+          green_waste_week_offset: number | null
           id: string
+          last_verified_date: string | null
           lat: number | null
           lng: number | null
+          next_general_waste_date: string | null
+          next_green_waste_date: string | null
           next_recycling_date: string | null
           postcode: string
           recycling_day: string | null
           recycling_week: number | null
+          recycling_week_frequency: number | null
           state: string
           street_name: string
           street_number: string
           suburb: string
+          unit_number: string | null
           updated_at: string | null
+          verification_source: string | null
         }
         Insert: {
           clean_shift_days?: number | null
           council?: Database["public"]["Enums"]["council_enum"] | null
           created_at?: string | null
+          general_waste_day?: string | null
+          general_waste_week_frequency?: number | null
+          general_waste_week_offset?: number | null
+          green_waste_day?: string | null
+          green_waste_week_frequency?: number | null
+          green_waste_week_offset?: number | null
           id?: string
+          last_verified_date?: string | null
           lat?: number | null
           lng?: number | null
+          next_general_waste_date?: string | null
+          next_green_waste_date?: string | null
           next_recycling_date?: string | null
           postcode: string
           recycling_day?: string | null
           recycling_week?: number | null
+          recycling_week_frequency?: number | null
           state?: string
           street_name: string
           street_number: string
           suburb: string
+          unit_number?: string | null
           updated_at?: string | null
+          verification_source?: string | null
         }
         Update: {
           clean_shift_days?: number | null
           council?: Database["public"]["Enums"]["council_enum"] | null
           created_at?: string | null
+          general_waste_day?: string | null
+          general_waste_week_frequency?: number | null
+          general_waste_week_offset?: number | null
+          green_waste_day?: string | null
+          green_waste_week_frequency?: number | null
+          green_waste_week_offset?: number | null
           id?: string
+          last_verified_date?: string | null
           lat?: number | null
           lng?: number | null
+          next_general_waste_date?: string | null
+          next_green_waste_date?: string | null
           next_recycling_date?: string | null
           postcode?: string
           recycling_day?: string | null
           recycling_week?: number | null
+          recycling_week_frequency?: number | null
           state?: string
           street_name?: string
           street_number?: string
           suburb?: string
+          unit_number?: string | null
           updated_at?: string | null
+          verification_source?: string | null
         }
         Relationships: []
+      }
+      leave_requests: {
+        Row: {
+          approval_reason: string | null
+          approved_by: string | null
+          created_at: string
+          end_date: string
+          id: string
+          reason: string
+          start_date: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          approval_reason?: string | null
+          approved_by?: string | null
+          created_at?: string
+          end_date: string
+          id?: string
+          reason: string
+          start_date: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          approval_reason?: string | null
+          approved_by?: string | null
+          created_at?: string
+          end_date?: string
+          id?: string
+          reason?: string
+          start_date?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      messages: {
+        Row: {
+          content: string | null
+          conversation_id: string
+          created_at: string
+          edited_at: string | null
+          file_name: string | null
+          file_size: number | null
+          file_url: string | null
+          id: string
+          message_type: string
+          reply_to_id: string | null
+          sender_id: string
+          updated_at: string
+        }
+        Insert: {
+          content?: string | null
+          conversation_id: string
+          created_at?: string
+          edited_at?: string | null
+          file_name?: string | null
+          file_size?: number | null
+          file_url?: string | null
+          id?: string
+          message_type?: string
+          reply_to_id?: string | null
+          sender_id: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string | null
+          conversation_id?: string
+          created_at?: string
+          edited_at?: string | null
+          file_name?: string | null
+          file_size?: number | null
+          file_url?: string | null
+          id?: string
+          message_type?: string
+          reply_to_id?: string | null
+          sender_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_reply_to_id_fkey"
+            columns: ["reply_to_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          created_at: string
+          id: string
+          leave_request_id: string | null
+          message: string
+          priority: string
+          read: boolean
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          leave_request_id?: string | null
+          message: string
+          priority?: string
+          read?: boolean
+          title: string
+          type?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          leave_request_id?: string | null
+          message?: string
+          priority?: string
+          read?: boolean
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_leave_request_id_fkey"
+            columns: ["leave_request_id"]
+            isOneToOne: false
+            referencedRelation: "leave_requests"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       oauth_tokens: {
         Row: {
@@ -901,6 +1364,59 @@ export type Database = {
             columns: ["invoice_id"]
             isOneToOne: false
             referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payroll_rates: {
+        Row: {
+          active: boolean
+          annual_leave_rate: number
+          base_hourly_rate: number
+          created_at: string
+          effective_from: string
+          employment_type: string
+          id: string
+          sick_leave_rate: number
+          superannuation_rate: number
+          updated_at: string
+          user_id: string
+          workcover_rate: number
+        }
+        Insert: {
+          active?: boolean
+          annual_leave_rate?: number
+          base_hourly_rate: number
+          created_at?: string
+          effective_from?: string
+          employment_type: string
+          id?: string
+          sick_leave_rate?: number
+          superannuation_rate?: number
+          updated_at?: string
+          user_id: string
+          workcover_rate?: number
+        }
+        Update: {
+          active?: boolean
+          annual_leave_rate?: number
+          base_hourly_rate?: number
+          created_at?: string
+          effective_from?: string
+          employment_type?: string
+          id?: string
+          sick_leave_rate?: number
+          superannuation_rate?: number
+          updated_at?: string
+          user_id?: string
+          workcover_rate?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payroll_rates_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -1199,6 +1715,127 @@ export type Database = {
           },
         ]
       }
+      reminder_customers: {
+        Row: {
+          active: boolean
+          communication_preferences:
+            | Database["public"]["Enums"]["communication_preference"][]
+            | null
+          created_at: string
+          email: string | null
+          id: string
+          mobile_phone: string
+          name: string
+          postcode: string
+          push_token: string | null
+          referral_code: string | null
+          referred_by: string | null
+          source: string | null
+          state: string
+          street_name: string
+          street_number: string
+          suburb: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          communication_preferences?:
+            | Database["public"]["Enums"]["communication_preference"][]
+            | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          mobile_phone: string
+          name: string
+          postcode: string
+          push_token?: string | null
+          referral_code?: string | null
+          referred_by?: string | null
+          source?: string | null
+          state?: string
+          street_name: string
+          street_number: string
+          suburb: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          communication_preferences?:
+            | Database["public"]["Enums"]["communication_preference"][]
+            | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          mobile_phone?: string
+          name?: string
+          postcode?: string
+          push_token?: string | null
+          referral_code?: string | null
+          referred_by?: string | null
+          source?: string | null
+          state?: string
+          street_name?: string
+          street_number?: string
+          suburb?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reminder_customers_referred_by_fkey"
+            columns: ["referred_by"]
+            isOneToOne: false
+            referencedRelation: "reminder_customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reminder_history: {
+        Row: {
+          bin_types: Database["public"]["Enums"]["bin_type"][]
+          collection_date: string
+          customer_id: string
+          id: string
+          method: Database["public"]["Enums"]["communication_preference"]
+          reminder_date: string
+          sent_at: string
+          status: string
+          upsell_offered: boolean | null
+          upsell_response: string | null
+        }
+        Insert: {
+          bin_types: Database["public"]["Enums"]["bin_type"][]
+          collection_date: string
+          customer_id: string
+          id?: string
+          method: Database["public"]["Enums"]["communication_preference"]
+          reminder_date: string
+          sent_at?: string
+          status?: string
+          upsell_offered?: boolean | null
+          upsell_response?: string | null
+        }
+        Update: {
+          bin_types?: Database["public"]["Enums"]["bin_type"][]
+          collection_date?: string
+          customer_id?: string
+          id?: string
+          method?: Database["public"]["Enums"]["communication_preference"]
+          reminder_date?: string
+          sent_at?: string
+          status?: string
+          upsell_offered?: boolean | null
+          upsell_response?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reminder_history_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "reminder_customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       routing_zones: {
         Row: {
           active: boolean | null
@@ -1482,6 +2119,121 @@ export type Database = {
           },
         ]
       }
+      shift_templates: {
+        Row: {
+          active: boolean | null
+          break_duration: number | null
+          created_at: string | null
+          day_of_week: number
+          end_time: string
+          id: string
+          location: string | null
+          name: string
+          shift_type: string | null
+          start_time: string
+          updated_at: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          break_duration?: number | null
+          created_at?: string | null
+          day_of_week: number
+          end_time: string
+          id?: string
+          location?: string | null
+          name: string
+          shift_type?: string | null
+          start_time: string
+          updated_at?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          break_duration?: number | null
+          created_at?: string | null
+          day_of_week?: number
+          end_time?: string
+          id?: string
+          location?: string | null
+          name?: string
+          shift_type?: string | null
+          start_time?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      shifts: {
+        Row: {
+          break_duration: number | null
+          created_at: string | null
+          created_by: string | null
+          employee_id: string | null
+          end_time: string
+          id: string
+          location: string | null
+          notes: string | null
+          shift_date: string
+          shift_type: string | null
+          start_time: string
+          status: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          break_duration?: number | null
+          created_at?: string | null
+          created_by?: string | null
+          employee_id?: string | null
+          end_time: string
+          id?: string
+          location?: string | null
+          notes?: string | null
+          shift_date: string
+          shift_type?: string | null
+          start_time: string
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          break_duration?: number | null
+          created_at?: string | null
+          created_by?: string | null
+          employee_id?: string | null
+          end_time?: string
+          id?: string
+          location?: string | null
+          notes?: string | null
+          shift_date?: string
+          shift_type?: string | null
+          start_time?: string
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_shifts_created_by_profiles"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_shifts_user_profiles"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shifts_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       skip_reasons: {
         Row: {
           chargeable: boolean | null
@@ -1652,6 +2404,380 @@ export type Database = {
           purchase_method?: Database["public"]["Enums"]["purchase_method"]
           store_address?: string | null
           supplier_name?: string
+        }
+        Relationships: []
+      }
+      task_assignments: {
+        Row: {
+          assigned_at: string
+          assigned_by: string
+          created_at: string
+          id: string
+          task_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          assigned_at?: string
+          assigned_by: string
+          created_at?: string
+          id?: string
+          task_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          assigned_at?: string
+          assigned_by?: string
+          created_at?: string
+          id?: string
+          task_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_assignments_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      task_completions: {
+        Row: {
+          completed_at: string
+          completed_by: string
+          due_date: string
+          id: string
+          notes: string | null
+          task_id: string
+        }
+        Insert: {
+          completed_at?: string
+          completed_by: string
+          due_date: string
+          id?: string
+          notes?: string | null
+          task_id: string
+        }
+        Update: {
+          completed_at?: string
+          completed_by?: string
+          due_date?: string
+          id?: string
+          notes?: string | null
+          task_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_completions_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tasks: {
+        Row: {
+          assigned_to: string
+          created_at: string
+          created_by: string
+          description: string | null
+          due_date: string
+          id: string
+          is_recurring: boolean
+          parent_task_id: string | null
+          priority: string
+          recurring_end_date: string | null
+          recurring_frequency_days: number | null
+          sop_link: string | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_to: string
+          created_at?: string
+          created_by: string
+          description?: string | null
+          due_date: string
+          id?: string
+          is_recurring?: boolean
+          parent_task_id?: string | null
+          priority?: string
+          recurring_end_date?: string | null
+          recurring_frequency_days?: number | null
+          sop_link?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_to?: string
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          due_date?: string
+          id?: string
+          is_recurring?: boolean
+          parent_task_id?: string | null
+          priority?: string
+          recurring_end_date?: string | null
+          recurring_frequency_days?: number | null
+          sop_link?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tasks_parent_task_id_fkey"
+            columns: ["parent_task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      template_assets: {
+        Row: {
+          created_at: string
+          file_size: number | null
+          file_type: string
+          file_url: string
+          id: string
+          name: string
+          template_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          file_size?: number | null
+          file_type: string
+          file_url: string
+          id?: string
+          name: string
+          template_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          file_size?: number | null
+          file_type?: string
+          file_url?: string
+          id?: string
+          name?: string
+          template_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "template_assets_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      template_categories: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      template_test_data: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          template_id: string
+          test_data: Json
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          template_id: string
+          test_data: Json
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          template_id?: string
+          test_data?: Json
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "template_test_data_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      template_versions: {
+        Row: {
+          content: string
+          created_at: string
+          created_by: string | null
+          id: string
+          styles: Json | null
+          subject: string | null
+          template_id: string
+          variables: Json | null
+          version_number: number
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          styles?: Json | null
+          subject?: string | null
+          template_id: string
+          variables?: Json | null
+          version_number: number
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          styles?: Json | null
+          subject?: string | null
+          template_id?: string
+          variables?: Json | null
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "template_versions_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      templates: {
+        Row: {
+          category_id: string
+          content: string
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          is_default: boolean
+          name: string
+          styles: Json | null
+          subject: string | null
+          type: string
+          updated_at: string
+          variables: Json | null
+        }
+        Insert: {
+          category_id: string
+          content: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          is_default?: boolean
+          name: string
+          styles?: Json | null
+          subject?: string | null
+          type: string
+          updated_at?: string
+          variables?: Json | null
+        }
+        Update: {
+          category_id?: string
+          content?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          is_default?: boolean
+          name?: string
+          styles?: Json | null
+          subject?: string | null
+          type?: string
+          updated_at?: string
+          variables?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "templates_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "template_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      time_clock_entries: {
+        Row: {
+          break_duration: number | null
+          clock_in_time: string
+          clock_out_time: string | null
+          created_at: string | null
+          id: string
+          notes: string | null
+          total_hours: number | null
+          updated_at: string | null
+          user_id: string
+          xero_sync_status: string | null
+          xero_timesheet_id: string | null
+        }
+        Insert: {
+          break_duration?: number | null
+          clock_in_time?: string
+          clock_out_time?: string | null
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          total_hours?: number | null
+          updated_at?: string | null
+          user_id: string
+          xero_sync_status?: string | null
+          xero_timesheet_id?: string | null
+        }
+        Update: {
+          break_duration?: number | null
+          clock_in_time?: string
+          clock_out_time?: string | null
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          total_hours?: number | null
+          updated_at?: string | null
+          user_id?: string
+          xero_sync_status?: string | null
+          xero_timesheet_id?: string | null
         }
         Relationships: []
       }
@@ -2114,6 +3240,14 @@ export type Database = {
         Args: { data: string }
         Returns: string
       }
+      can_complete_task: {
+        Args: { task_id: string }
+        Returns: boolean
+      }
+      check_late_clock_ins: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       disablelongtransactions: {
         Args: Record<PropertyKey, never>
         Returns: string
@@ -2144,6 +3278,10 @@ export type Database = {
       equals: {
         Args: { geom1: unknown; geom2: unknown }
         Returns: boolean
+      }
+      find_or_create_direct_conversation: {
+        Args: { _user1_id: string; _user2_id: string }
+        Returns: string
       }
       geography: {
         Args: { "": string } | { "": unknown }
@@ -3740,6 +4878,10 @@ export type Database = {
         Args: { data: Json } | { string: string } | { string: string }
         Returns: string
       }
+      user_is_conversation_participant: {
+        Args: { _user_id: string; _conversation_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role:
@@ -3750,7 +4892,9 @@ export type Database = {
         | "admin_staff"
         | "admin_leader"
         | "owner"
+      bin_type: "general" | "recycling" | "green_waste" | "food_waste"
       bin_type_enum: "plastic" | "steel"
+      communication_preference: "sms" | "push" | "email"
       council_enum: "gold_coast" | "logan"
       customer_status_enum:
         | "active"
@@ -3957,7 +5101,9 @@ export const Constants = {
         "admin_leader",
         "owner",
       ],
+      bin_type: ["general", "recycling", "green_waste", "food_waste"],
       bin_type_enum: ["plastic", "steel"],
+      communication_preference: ["sms", "push", "email"],
       council_enum: ["gold_coast", "logan"],
       customer_status_enum: [
         "active",
